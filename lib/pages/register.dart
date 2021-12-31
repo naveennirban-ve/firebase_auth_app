@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth_app/controlllers/validators.dart';
+import 'package:firebase_auth_app/controllers/validators.dart';
 import 'package:firebase_auth_app/pages/home.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'dashboard.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -20,20 +22,44 @@ class _RegisterState extends State<Register> {
   final _focusPassword = FocusNode();
   bool _success = false;
   String _userEmail = "";
+  String _responseMessage = "";
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+
+  /// Initialize Firebase Instance(App)
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
     return firebaseApp;
   }
 
+
+
+  /// Dispose controllers
   @override
   void dispose() {
     _emailTextController.dispose();
     _passwordTextController.dispose();
     super.dispose();
   }
-  void _register() async {
-    FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// Anonymously Login
+  Future<User?> signInAnonymously() async{
+    final User? user = (await _auth.signInAnonymously()).user;
+    if(user != null){
+      setState(() {
+        _responseMessage = "success";
+      });
+    }else{
+      setState(() {
+        _responseMessage = "success";
+      });
+    }
+    return user;
+  }
+
+  /// Firebase Email Password Register
+  _register() async {
+    try{
     final User? user = (await
     _auth.createUserWithEmailAndPassword(
       email: _emailTextController.text,
@@ -49,7 +75,15 @@ class _RegisterState extends State<Register> {
       setState(() {
         _success = true;
       });
+    }}
+    on FirebaseAuthException catch (e) {
+      print(e.code);
+      setState(() {
+        _responseMessage = e.code;
+      });
+
     }
+    //return _responseMessage;
   }
 
 
@@ -57,10 +91,10 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register'),
+        title: const Text('Register'),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 16,horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 16),
         child: FutureBuilder(
           future: _initializeFirebase(),
           builder: (context, snapshot) {
@@ -106,6 +140,29 @@ class _RegisterState extends State<Register> {
                         ElevatedButton(onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _register();
+                            if(_success){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Dashboard()),
+                              );
+                            }else{
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(_responseMessage),
+                                    actions: <Widget>[
+                                      ElevatedButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           }
                         }, child: const Text("Submit")),
                         Container(
@@ -116,19 +173,34 @@ class _RegisterState extends State<Register> {
                               ? 'Successfully registered ' + _userEmail
                               : 'Registration failed')),
                         ),
-                        SizedBox(height: 20,),
+                        const SizedBox(height: 20,),
                         Row(children: [
-                          Text("Already a user"),
+                          const Text("Already a user"),
                           InkWell(
                             onTap: (){
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => Home()),
+                                MaterialPageRoute(builder: (context) => const Login()),
                               );
                             },
-                            child: Text("Login here",style: TextStyle(fontSize: 18,color: Colors.blue),),
+                            child: const Text("Login here",style: TextStyle(fontSize: 18,color: Colors.blue),),
                           )
-                        ],)
+                        ],),
+                        Container(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          alignment: Alignment.center,
+                          child: ElevatedButton(
+                              onPressed: () async {
+                                User? user =  await signInAnonymously();
+                                if(_responseMessage=="success"){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                                  );
+                                }
+                              },
+                              child: Text("Anon Sign in")),
+                        ),
 
 
                       ],

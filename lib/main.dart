@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_app/pages/googleSign.dart';
 import 'package:firebase_auth_app/pages/home.dart';
 import 'package:firebase_auth_app/pages/paintAnim.dart';
 import 'package:firebase_auth_app/pages/register.dart';
@@ -25,10 +26,12 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
-      home: Register(),
+      home: LandingPage(),
     );
   }
 }
+/// Control flow is from main.dart to googleSign.dart
+/// If login then signin.dart.
 
