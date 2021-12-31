@@ -1,9 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  FirebaseAuth auth = FirebaseAuth.instance;
   /// SignOut
   Future<void> _signOut() async {
     try {
@@ -31,8 +37,11 @@ class Dashboard extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text("Welcome to Dashboard"),
+      body:  Center(
+        child: Column(children: [
+          Text("Welcome to Dashboard"),
+          Text(auth.currentUser!.uid)
+        ]),
       ),
     );
   }
