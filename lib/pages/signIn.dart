@@ -148,58 +148,60 @@ class _SignInState extends State<SignIn> {
     var safeHeight = size.height - MediaQuery.of(context).padding.top;
     var width = size.width;
     return Scaffold(
-      body: Container(
+      body: Padding(
         padding: EdgeInsets.symmetric(horizontal: width*0.05,vertical: width*0.05),
         child:
-            Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    //height: width*0.4,
-                    //width: width*0.2,
-                    child: const Icon(Icons.person_pin,size: 128,color: Colors.grey,),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      ),
-                  ),
-                  SizedBox(height: safeHeight*0.01,),
-                  const Text("Welcome Back",style: TextStyle(fontSize: 36,fontWeight: FontWeight.bold),),
-                  SizedBox(height: safeHeight*0.005,),
-                  const Text("Sign In to continue",style: TextStyle(color: Colors.grey),),
-                  SizedBox(height: safeHeight*0.02,),
-                  inputField(_emailTextController, _focusEmail, false, "Email", true, false, null),
-                  SizedBox(height: safeHeight*0.01,),
-                  inputField(_passwordTextController, _focusPassword, true, "Password", false, true, null),
-                  SizedBox(height: safeHeight*0.01,),
-                  /// SignIn Button
-                  button(onSignInTap,safeHeight,Colors.green,"Submit"),
-                  SizedBox(height: safeHeight*0.02,),
-                  /// Create a account page link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account? ",style: TextStyle(fontSize: 16),),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignUp()),
-                          );
-                        },
-                        child: const Text("Create a new account",
-                            style: TextStyle(
+            Center(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: <Widget>[
+                    Container(
+                      //height: width*0.4,
+                      //width: width*0.2,
+                      child: const Icon(Icons.person_pin,size: 128,color: Colors.grey,),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        ),
+                    ),
+                    SizedBox(height: safeHeight*0.01,),
+                    const Text("Welcome Back",style: TextStyle(fontSize: 36,fontWeight: FontWeight.bold),),
+                    SizedBox(height: safeHeight*0.005,),
+                    const Text("Sign In to continue",style: TextStyle(color: Colors.grey),),
+                    SizedBox(height: safeHeight*0.02,),
+                    inputField(_emailTextController, _focusEmail, false, "Email", true, false, null),
+                    SizedBox(height: safeHeight*0.01,),
+                    inputField(_passwordTextController, _focusPassword, true, "Password", false, true, null),
+                    SizedBox(height: safeHeight*0.01,),
+                    /// SignIn Button
+                    button(onSignInTap,safeHeight,Colors.green,"Submit"),
+                    SizedBox(height: safeHeight*0.02,),
+                    /// Create a account page link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Don't have an account? ",style: TextStyle(fontSize: 16),),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUp()),
+                            );
+                          },
+                          child: const Text("Create a new account",
+                              style: TextStyle(
 
-                                color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: safeHeight*0.02,),
-                  /// SignIn Anonymously Button
-                  button(onSignInAnonymouslyTap,safeHeight,Colors.lightBlueAccent,"Sign In Anonymously"),
-                ],
+                                  color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: safeHeight*0.02,),
+                    /// SignIn Anonymously Button
+                    button(onSignInAnonymouslyTap,safeHeight,Colors.lightBlueAccent,"Sign In Anonymously"),
+                  ],
+                ),
               ),
             ),
 

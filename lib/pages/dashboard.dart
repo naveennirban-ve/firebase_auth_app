@@ -20,20 +20,38 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection('users').snapshots();
 
+  /// General Purpose variables
+  late int _counter;
+
   /// SignOut function
   Future<void> _signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
     } catch (e) {
-      print(e); // TODO: show dialog with error
+      if (kDebugMode) {
+        print(e);
+      } // TODO: show dialog with error
     }
   }
 
+
+
+  void counter(isInBackground){
+    while(isInBackground){
+      Future.delayed( const Duration(seconds: 1),() async{
+        setState(() {
+          _counter++;
+        });
+      });
+    }
+  }
 
   /// Lifecycle methods
   @override
   void initState() {
     super.initState();
+    _counter = 0;
+    counter(_isInForeground);
     WidgetsBinding.instance!.addObserver(this);
   }
 
@@ -46,29 +64,38 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    _isInForeground = state == AppLifecycleState.resumed;
-    // switch (state) {
-    //   case AppLifecycleState.resumed:
-    //     if (kDebugMode) {
-    //       print("app in resumed");
-    //     }
-    //     break;
-    //   case AppLifecycleState.inactive:
-    //     if (kDebugMode) {
-    //       print("app in inactive");
-    //     }
-    //     break;
-    //   case AppLifecycleState.paused:
-    //     if (kDebugMode) {
-    //       print("app in paused");
-    //     }
-    //     break;
-    //   case AppLifecycleState.detached:
-    //     if (kDebugMode) {
-    //       print("app in detached");
-    //     }
-    //     break;
-    // }
+    //_isInForeground = state == AppLifecycleState.resumed;
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (kDebugMode) {
+          _isInForeground=true;
+          counter(_isInForeground);
+          print("app in resumed");
+        }
+        break;
+      case AppLifecycleState.inactive:
+        if (kDebugMode) {
+          counter(_isInForeground);
+          _isInForeground=false;
+          print("app in inactive");
+        }
+        break;
+      case AppLifecycleState.paused:
+        if (kDebugMode) {
+          counter(_isInForeground);
+          _isInForeground=false;
+          print("app in paused");
+        }
+        break;
+      case AppLifecycleState.detached:
+        if (kDebugMode) {
+          counter(_isInForeground);
+          _isInForeground=false;
+          print("app in detached");
+        }
+        break;
+    }
 
   }
 
@@ -76,9 +103,14 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
+    //counter(_isInForeground);
+    if (kDebugMode) {
+      print(_isInForeground);
+    }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title:  Text(_counter.toString()),
+
         actions: <Widget>[
           FlatButton(
             child: const Text(
@@ -96,11 +128,11 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         stream: _usersStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Text('Something went wrong');
+            return const Text('Something went wrong');
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Loading");
+            return const Text("Loading");
           }
 
           return ListView(
