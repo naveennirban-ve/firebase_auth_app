@@ -48,6 +48,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
+  # To rename the app
+  # flutter_launcher_name: ^0.0.1
+flutter_launcher_name:
+    name: "Auth App"
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

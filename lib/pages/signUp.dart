@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_app/pages/obsolete/home.dart';
+import 'package:firebase_auth_app/pages/signIn.dart';
 import 'package:firebase_auth_app/widgets/input.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -152,63 +153,62 @@ class _SignUpState extends State<SignUp> {
     var safeHeight = size.height - MediaQuery.of(context).padding.top;
     var width = size.width;
     return Scaffold(
-      body: Container(
+      body: Padding(
         padding: EdgeInsets.symmetric(horizontal: width*0.05,vertical: width*0.05),
-        child:
-        Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                //height: width*0.4,
-                //width: width*0.2,
-                child: const Icon(Icons.person_pin,size: 128,color: Colors.grey,),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  //height: width*0.4,
+                  //width: width*0.2,
+                  child: const Icon(Icons.person_pin,size: 128,color: Colors.grey,),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              SizedBox(height: safeHeight*0.01,),
-              const Text("Welcome Here",style: TextStyle(fontSize: 36,fontWeight: FontWeight.bold),),
-              SizedBox(height: safeHeight*0.005,),
-              const Text("Create an account for free",style: TextStyle(color: Colors.grey),),
-              SizedBox(height: safeHeight*0.02,),
-              inputField(_emailTextController, _focusEmail, false, "Email", true, false, null),
-              SizedBox(height: safeHeight*0.01,),
-              inputField(_passwordTextController, _focusPassword, true, "Password", false, true, null),
-              SizedBox(height: safeHeight*0.01,),
-              /// SignUp Button
-              button(onSignInTap,safeHeight,Colors.green,"Submit"),
-              SizedBox(height: safeHeight*0.02,),
-              /// Create a account page link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account ? ",style: TextStyle(fontSize: 16),),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Login()),
-                      );
-                    },
-                    child: const Text("Login here",
-                        style: TextStyle(
+                SizedBox(height: safeHeight*0.01,),
+                const Text("Welcome Here",style: TextStyle(fontSize: 36,fontWeight: FontWeight.bold),),
+                SizedBox(height: safeHeight*0.005,),
+                const Text("Create an account for free",style: TextStyle(color: Colors.grey),),
+                SizedBox(height: safeHeight*0.02,),
+                inputField(_emailTextController, _focusEmail, false, "Email", true, false, null),
+                SizedBox(height: safeHeight*0.01,),
+                inputField(_passwordTextController, _focusPassword, true, "Password", false, true, null),
+                SizedBox(height: safeHeight*0.01,),
+                /// SignUp Button
+                button(onSignInTap,safeHeight,Colors.green,"Submit"),
+                SizedBox(height: safeHeight*0.02,),
+                /// Create a account page link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an account ? ",style: TextStyle(fontSize: 16),),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(
+                          context,
 
-                            color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
-                  )
-                ],
-              ),
-              SizedBox(height: safeHeight*0.02,),
-              /// SignIn Anonymously Button
-              //button(onSignInAnonymouslyTap,safeHeight,Colors.lightBlueAccent,"Sign In Anonymously"),
-            ],
+                        );
+                      },
+                      child: const Text("Login here",
+                          style: TextStyle(
+
+                              color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
+                    )
+                  ],
+                ),
+                SizedBox(height: safeHeight*0.02,),
+                /// SignIn Anonymously Button
+                //button(onSignInAnonymouslyTap,safeHeight,Colors.lightBlueAccent,"Sign In Anonymously"),
+              ],
+            ),
           ),
         ),
-
-
-
       ),
     );
   }
