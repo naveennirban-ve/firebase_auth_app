@@ -47,58 +47,58 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
   }
 
   /// Lifecycle methods
-  @override
-  void initState() {
-    super.initState();
-    _counter = 0;
-    counter(_isInForeground);
-    WidgetsBinding.instance!.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    //_isInForeground = state == AppLifecycleState.resumed;
-
-    switch (state) {
-      case AppLifecycleState.resumed:
-        if (kDebugMode) {
-          _isInForeground=true;
-          counter(_isInForeground);
-          print("app in resumed");
-        }
-        break;
-      case AppLifecycleState.inactive:
-        if (kDebugMode) {
-          counter(_isInForeground);
-          _isInForeground=false;
-          print("app in inactive");
-        }
-        break;
-      case AppLifecycleState.paused:
-        if (kDebugMode) {
-          counter(_isInForeground);
-          _isInForeground=false;
-          print("app in paused");
-        }
-        break;
-      case AppLifecycleState.detached:
-        if (kDebugMode) {
-          counter(_isInForeground);
-          _isInForeground=false;
-          print("app in detached");
-        }
-        break;
-    }
-
-  }
-
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _counter = 0;
+  //   counter(_isInForeground);
+  //   WidgetsBinding.instance!.addObserver(this);
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   WidgetsBinding.instance!.removeObserver(this);
+  //   super.dispose();
+  // }
+  //
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   super.didChangeAppLifecycleState(state);
+  //   //_isInForeground = state == AppLifecycleState.resumed;
+  //
+  //   switch (state) {
+  //     case AppLifecycleState.resumed:
+  //       if (kDebugMode) {
+  //         _isInForeground=true;
+  //         counter(_isInForeground);
+  //         print("app in resumed");
+  //       }
+  //       break;
+  //     case AppLifecycleState.inactive:
+  //       if (kDebugMode) {
+  //         counter(_isInForeground);
+  //         _isInForeground=false;
+  //         print("app in inactive");
+  //       }
+  //       break;
+  //     case AppLifecycleState.paused:
+  //       if (kDebugMode) {
+  //         counter(_isInForeground);
+  //         _isInForeground=false;
+  //         print("app in paused");
+  //       }
+  //       break;
+  //     case AppLifecycleState.detached:
+  //       if (kDebugMode) {
+  //         counter(_isInForeground);
+  //         _isInForeground=false;
+  //         print("app in detached");
+  //       }
+  //       break;
+  //   }
+  //
+  // }
+  //
 
 
   @override
@@ -109,7 +109,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     }
     return Scaffold(
       appBar: AppBar(
-        title:  Text(_counter.toString()),
+        title:  Text("Dashboard"),
 
         actions: <Widget>[
           FlatButton(
