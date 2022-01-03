@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_app/pages/signUp.dart';
 import 'package:firebase_auth_app/widgets/input.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'dashboard.dart';
-import 'register.dart';
+import 'obsolete/register.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -16,6 +18,9 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   /// GlobalFormKey
   final _formKey = GlobalKey<FormState>();
+
+  /// To use Firebase Firestore
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   /// TextControllers for input fields
   final _emailTextController = TextEditingController();
@@ -74,7 +79,19 @@ class _SignInState extends State<SignIn> {
   /// SignIn Anonymously
   Future<void> _signInAnonymously() async {
     try {
+      FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
       await FirebaseAuth.instance.signInAnonymously();
+      var uid = FirebaseAuth.instance.currentUser!.uid;
+      var email = FirebaseAuth.instance.currentUser!.email;
+       firestoreInstance.collection("users").doc(uid).set(
+          {
+            "uid":uid,
+            "email": email
+          }).then((_){
+        if (kDebugMode) {
+          print("Successfully registered !");
+        }
+      });
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -94,7 +111,6 @@ class _SignInState extends State<SignIn> {
             context: context);
 
         if(user!=null){
-          //passwordValidateMessage="";
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Dashboard()),
@@ -160,6 +176,7 @@ class _SignInState extends State<SignIn> {
                   /// SignIn Button
                   button(onSignInTap,safeHeight,Colors.green,"Submit"),
                   SizedBox(height: safeHeight*0.02,),
+                  /// Create a account page link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -169,7 +186,7 @@ class _SignInState extends State<SignIn> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Register()),
+                                builder: (context) => const SignUp()),
                           );
                         },
                         child: const Text("Create a new account",

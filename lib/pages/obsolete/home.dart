@@ -1,6 +1,7 @@
 import 'package:firebase_auth_app/controllers/validators.dart';
 import 'package:firebase_auth_app/pages/dashboard.dart';
-import 'package:firebase_auth_app/pages/register.dart';
+import 'package:firebase_auth_app/pages/obsolete/register.dart';
+import 'package:firebase_auth_app/pages/signUp.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class _LoginState extends State<Login> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => const Register()),
+                                      builder: (context) => const SignUp()),
                                 );
                               },
                               child: const Text("Register Now",

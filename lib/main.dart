@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth_app/pages/googleSign.dart';
-import 'package:firebase_auth_app/pages/home.dart';
-import 'package:firebase_auth_app/pages/paintAnim.dart';
-import 'package:firebase_auth_app/pages/register.dart';
+import 'package:firebase_auth_app/pages/landingPage.dart';
+import 'package:firebase_auth_app/pages/obsolete/home.dart';
+import 'package:firebase_auth_app/pages/splash.dart';
+import 'package:firebase_auth_app/pages/obsolete/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +32,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-/// Control flow is from main.dart to googleSign.dart
+/// Control flow is from main.dart to landingPage.dart
 /// If login then signin.dart.
 

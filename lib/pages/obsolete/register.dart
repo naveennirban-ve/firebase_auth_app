@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_app/controllers/validators.dart';
-import 'package:firebase_auth_app/pages/home.dart';
+import 'package:firebase_auth_app/pages/obsolete/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'dashboard.dart';
+import '../dashboard.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
