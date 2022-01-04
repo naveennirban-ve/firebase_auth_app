@@ -206,119 +206,41 @@ class StickyListIssue extends StatelessWidget {
             ),
           ),
         ),
-        body: Column(
-          children: [
-            // Container(
-            //   height: safeHeight * 0.3,
-            // ),
-          Container(
-            /// 70% of total available height
-            height: safeHeight * 0.7,
-            child: StickyGroupedListView<Element, DateTime>(
-              elements: _elements,
-              order: StickyGroupedListOrder.ASC,
-              groupBy: (Element element) =>
-                  DateTime(element.date.year, element.date.month, element.date.day),
-              groupComparator: (DateTime value1, DateTime value2) =>
-                  value2.compareTo(value1),
-              itemComparator: (Element element1, Element element2) =>
-                  element1.date.compareTo(element2.date),
-              floatingHeader: true,
-              groupSeparatorBuilder: (Element element) => Container(
-                height: 50,
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    width: 220,
-                    padding: const EdgeInsets.only(left: 20,),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 5),
-                      child: Text( element.heading,
-                          style: const TextStyle(color: Colors.blueGrey)
-                      ),
+        body: Container(
+          /// 70% of total available height
+          height: safeHeight * 0.7,
+          child: StickyGroupedListView<Element, DateTime>(
+            elements: _elements,
+            order: StickyGroupedListOrder.ASC,
+            groupBy: (Element element) =>
+                DateTime(element.date.year, element.date.month, element.date.day),
+            groupComparator: (DateTime value1, DateTime value2) =>
+                value2.compareTo(value1),
+            itemComparator: (Element element1, Element element2) =>
+                element1.date.compareTo(element2.date),
+            floatingHeader: true,
+            groupSeparatorBuilder: (Element element) => Container(
+              height: 50,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  width: 220,
+                  padding: const EdgeInsets.only(left: 20,),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5),
+                    child: Text( element.heading,
+                        style: const TextStyle(color: Colors.blueGrey)
                     ),
                   ),
                 ),
               ),
-              itemBuilder: (_, Element element) {
-                return element.type ?GestureDetector(
-                  onTap: (){
-                    //Navigator.push(context, MaterialPageRoute(builder: (context)=> WaitingForValidation()));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 2.0,
-                      left: 10,
-                      right: 10,
-                    ),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      elevation: 8.0,
-                      margin:
-                      const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                      child: Container(
-                        child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 10.0),
-                            title: Text(
-                              element.subTitle +
-                                  '${element.date.day}/${element.date.month}/'
-                                      '${element.date.year}',
-                              style: const TextStyle(
-                                //color:AppColors.grey
-                                  color: Color(0xff919AAA),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300),
-                            ),
-                            subtitle: Text(
-                              element.hotelName,
-                              style: const TextStyle(
-                                //color:AppColors.grey
-                                  color: Color(0xff243656),
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w300),
-                            ),
-                            trailing: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Card(
-                                elevation: 20.0,
-                                shadowColor: Colors.blue[100],
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(20.0))),
-                                child: Container(
-                                  height: 30,
-                                  width: 100,
-                                  decoration: BoxDecoration(
-                                    // boxShadow: [BoxShadow(color: AppColors.grey, blurRadius: 20.0)],
-                                      borderRadius: BorderRadius.circular(20.0),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.blue,
-                                          Colors.blue.shade900,
-                                        ],
-                                      )),
-                                  child: MaterialButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                      element.buttonText,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                             ),
-                      ),
-                    ),
-                  ),
-                ):
-                Padding(
+            ),
+            itemBuilder: (_, Element element) {
+              return element.type ?GestureDetector(
+                onTap: (){
+                  //Navigator.push(context, MaterialPageRoute(builder: (context)=> WaitingForValidation()));
+                },
+                child: Padding(
                   padding: const EdgeInsets.only(
                     top: 2.0,
                     left: 10,
@@ -330,7 +252,7 @@ class StickyListIssue extends StatelessWidget {
                     ),
                     elevation: 8.0,
                     margin:
-                    new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                     child: Container(
                       child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
@@ -355,32 +277,104 @@ class StickyListIssue extends StatelessWidget {
                           ),
                           trailing: Padding(
                             padding: const EdgeInsets.all(5.0),
-                            child: Container(
-                              height: 30,
-                              width: 100,
-                              child: MaterialButton(
-                                onPressed: () {},
-                                child: Text(
-                                  element.buttonText,
-                                  style: const TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                            child: Card(
+                              elevation: 20.0,
+                              shadowColor: Colors.blue[100],
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(20.0))),
+                              child: Container(
+                                height: 30,
+                                width: 100,
+                                decoration: BoxDecoration(
+                                  // boxShadow: [BoxShadow(color: AppColors.grey, blurRadius: 20.0)],
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.blue,
+                                        Colors.blue.shade900,
+                                      ],
+                                    )),
+                                child: MaterialButton(
+                                  onPressed: () {},
+                                  child: Text(
+                                    element.buttonText,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ),
                           )
-                        // :
-                        //Text('${element.date.hour}:00')
-                        /*element.date.day==true ?Text('${element.date.hour}:00'): */
-                      ),
+                           ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ):
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 2.0,
+                  left: 10,
+                  right: 10,
+                ),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  elevation: 8.0,
+                  margin:
+                  new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                  child: Container(
+                    child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 10.0),
+                        title: Text(
+                          element.subTitle +
+                              '${element.date.day}/${element.date.month}/'
+                                  '${element.date.year}',
+                          style: const TextStyle(
+                            //color:AppColors.grey
+                              color: Color(0xff919AAA),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300),
+                        ),
+                        subtitle: Text(
+                          element.hotelName,
+                          style: const TextStyle(
+                            //color:AppColors.grey
+                              color: Color(0xff243656),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300),
+                        ),
+                        trailing: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Container(
+                            height: 30,
+                            width: 100,
+                            child: MaterialButton(
+                              onPressed: () {},
+                              child: Text(
+                                element.buttonText,
+                                style: const TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        )
+                      // :
+                      //Text('${element.date.hour}:00')
+                      /*element.date.day==true ?Text('${element.date.hour}:00'): */
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-        ]),
+        ),
       ),
     );
   }
