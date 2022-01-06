@@ -113,10 +113,14 @@ class _SignUpState extends State<SignUp> {
 
 
 
-  /// Tap function for SignIn
-  Function? onSignInTap(){
+  /// Tap function for SignUp
+  Function? onSignUpTap(){
     return () async{
       if (_formKey.currentState!.validate()) {
+        // Remove keyboard focus from input fields.
+        _focusEmail.unfocus();
+        _focusPassword.unfocus();
+
         User? user = await signUpUsingEmailPassword(
             email: _emailTextController.text,
             password: _passwordTextController.text,
@@ -190,7 +194,7 @@ class _SignUpState extends State<SignUp> {
                 inputField(_passwordTextController, _focusPassword, true, "Password", false, true, null),
                 SizedBox(height: safeHeight*0.01,),
                 /// SignUp Button
-                button(onSignInTap,safeHeight,Colors.green,"Submit"),
+                button(onSignUpTap,safeHeight,Colors.green,"Submit"),
                 SizedBox(height: safeHeight*0.02,),
                 /// Create a account page link
                 Row(

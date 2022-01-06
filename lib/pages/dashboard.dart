@@ -203,53 +203,58 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          return Column(
-            children: [
-              /// Timer part
-              SizedBox(
-                height: safeHeight * 0.1,
-                  child: FutureBuilder(
-                    future: setInitTime(),
-                    builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                      switch(snapshot.connectionState){
-                        case ConnectionState.waiting: return const Center(child:  CircularProgressIndicator());
-                        default:
-                          if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          } else {
-                            return mainUI(snapshot.data);
-                          }
+          return Container(
+            height: safeHeight,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                /// Timer part
+                SizedBox(
+                  height: safeHeight * 0.1,
+                    child: FutureBuilder(
+                      future: setInitTime(),
+                      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                        switch(snapshot.connectionState){
+                          case ConnectionState.waiting: return const Center(child:  CircularProgressIndicator());
+                          default:
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            } else {
+                              return mainUI(snapshot.data);
+                            }
+                        }
                       }
-                    }
-                  ),),
-              /// Users List
-              SizedBox(
-                height: safeHeight*0.9,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 16),
-                      child: Text("Users",style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold
-                      ),),
+                    ),),
+                /// Users List
+                SizedBox(
+                  height: safeHeight*0.9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Text("Users",style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold
+                        ),),
+                      ),
+                      SizedBox(
+                        height: safeHeight * 0.86,
+                        child: ListView(
+                          shrinkWrap: true,
+                        children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                          return ListTile(
+                            title: Text(data['email']?? "null"),
+                            subtitle: Text(data['uid']),
+                          );
+                        }).toList(),
                     ),
-                    SizedBox(
-                      height: safeHeight * 0.86,
-                      child: ListView(
-                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                        Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-                        return ListTile(
-                          title: Text(data['email']?? "null"),
-                          subtitle: Text(data['uid']),
-                        );
-                      }).toList(),
-                  ),
-                    ),
-                ]),
-              ),
-            ],
+                      ),
+                  ]),
+                ),
+              ],
+            ),
           );
         },
       ),
