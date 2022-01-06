@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_app/constants/application.dart';
 import 'package:firebase_auth_app/pages/obsolete/home.dart';
 import 'package:firebase_auth_app/pages/signIn.dart';
 import 'package:firebase_auth_app/widgets/input.dart';
@@ -60,14 +61,22 @@ class _SignUpState extends State<SignUp> {
         FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
         var uid = FirebaseAuth.instance.currentUser!.uid;
         var email = FirebaseAuth.instance.currentUser!.email;
-        firestoreInstance.collection("users").doc(uid).set(
+        /// Creating user firestore profile.
+        firestoreInstance.collection(Constants.databaseNameUsers).doc(uid).set(
             {
               "uid":uid,
               "email": email
             }).then((_){
-          if (kDebugMode) {
-            print("Successfully registered !");
-          }
+              /// Create a profile for usage track in other collection.
+            firestoreInstance.collection(Constants.databaseNameUserUsage).doc(uid).set(
+                {
+                  "uid":uid,
+                  "usageTime": null
+                }).then((_){
+              if (kDebugMode) {
+                print("Successfully registered !");
+              }
+            });
         });
       } else {
         setState(() {

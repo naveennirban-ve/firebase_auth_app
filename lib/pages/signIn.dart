@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth_app/constants/application.dart';
 import 'package:firebase_auth_app/pages/signUp.dart';
 import 'package:firebase_auth_app/widgets/input.dart';
 import 'package:flutter/foundation.dart';
@@ -88,9 +89,16 @@ class _SignInState extends State<SignIn> {
             "uid":uid,
             "email": email
           }).then((_){
-        if (kDebugMode) {
-          print("Successfully registered !");
-        }
+         // Create a profile for usage track in other collection.
+         firestoreInstance.collection(Constants.databaseNameUserUsage).doc(uid).set(
+             {
+               "uid":uid,
+               "usageTime": null
+             }).then((_){
+           if (kDebugMode) {
+             print("Successfully registered !");
+           }
+         });
       });
     } catch (e) {
       if (kDebugMode) {
@@ -105,17 +113,16 @@ class _SignInState extends State<SignIn> {
   Function? onSignInTap(){
     return () async{
       if (_formKey.currentState!.validate()) {
+        // Remove focus from email & password input field
+        _focusEmail.unfocus();
+        _focusPassword.unfocus();
+
         User? user = await signInUsingEmailPassword(
             email: _emailTextController.text,
             password: _passwordTextController.text,
             context: context);
-
-        if(user!=null){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const Dashboard()),
-          );
-        }else{
+        // Response Check
+        if(user==null){
           showDialog(
             context: context,
             builder: (BuildContext context) {

@@ -1,6 +1,6 @@
 class Validator {
   static String? validateName({required String name}) {
-    if (name == null) {
+    if (name == "") {
       return null;
     }
     if (name.isEmpty) {
@@ -11,7 +11,7 @@ class Validator {
   }
 
   static String? validateEmail({required String email}) {
-    if (email == null) {
+    if (email == "") {
       return null;
     }
     RegExp emailRegExp = RegExp(
@@ -27,7 +27,7 @@ class Validator {
   }
 
   static String? validatePassword({required String password}) {
-    if (password == null) {
+    if (password == "") {
       return null;
     }
     if (password.isEmpty) {

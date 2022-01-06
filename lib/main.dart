@@ -1,10 +1,10 @@
+
+
 import 'package:firebase_auth_app/pages/landingPage.dart';
-import 'package:firebase_auth_app/pages/test/Manager_Home.dart';
-import 'package:firebase_auth_app/pages/timer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/test/stickyListSweetyIssue.dart';
+
 
 
 Future<void> main() async{
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: StickyListIssue(),
+      home: LandingPage(),
     );
   }
 }

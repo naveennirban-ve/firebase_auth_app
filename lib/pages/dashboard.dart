@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_app/constants/application.dart';
 import 'package:flutter/foundation.dart';
@@ -13,12 +16,28 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
+  /// Current Time
+  int _currentTime = 0;
+  /// Background check flag
+  bool _isInForeground = true;
+  /// Stopwatch
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(
+    mode: StopWatchMode.countUp,
+  );
+
+
+
+  /// Check internet connectivity
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
 
   /// To use Firebase auth
   FirebaseAuth auth = FirebaseAuth.instance;
   /// To use Firebase Firestore
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance.collection(Constants.databaseName).snapshots();
+  final Stream<QuerySnapshot> _usersDataStream = FirebaseFirestore.instance.collection(Constants.databaseNameUsers).snapshots();
   var uid = FirebaseAuth.instance.currentUser!.uid;
 
 
@@ -34,41 +53,52 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     }
   }
 
-
-  /// Stopwatch
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-    mode: StopWatchMode.countUp,
-  );
-
   /// Set initial time in stopwatch
-  void setInitTime() async{
-    var collection = FirebaseFirestore.instance.collection(Constants.databaseName).doc(uid);
+  Future<int> setInitTime() async{
+    var collection = FirebaseFirestore.instance.collection(Constants.databaseNameUserUsage).doc(uid);
     var querySnapshot = await collection.get();
     Map<String, dynamic>? data = querySnapshot.data();
-    var _time = data!['usageTime'];
-    if(_time!=null){
-      _stopWatchTimer.setPresetTime(mSec: _time);
+    var _usageTime = data!= null? data['usageTime'] : null;
+    if(_usageTime!=null){
+      return _usageTime;
     }else{
       if (kDebugMode) {
-        print("Usage Time is null");
-      }}
-    }
+        print("Usage Time is null, setting 0 as default");
+      }
+      return 0;
+    }}
 
-    /// Save app usage time in database
-  setUsageTime(time)async{
-    Future.delayed(const Duration(seconds: 5),(){
-      var uid = FirebaseAuth.instance.currentUser!.uid;
-      firestore.collection(Constants.databaseName).doc(uid).update(
-          {
-            "usageTime":time,
-          }).then((_){
-        if (kDebugMode) {
-          print("Updated new time !");
+  /// Save app usage time in database
+  setUsageTime()async{
+     while(_isInForeground) {
+      await Future.delayed(const Duration(seconds: Constants.usageDataRequestDelay), () async{
+        // Important !!!
+        // Always check if state is mounted or not, otherwise async calls will
+        // be continued in background.
+        if(mounted) {
+          _currentTime = _stopWatchTimer.secondTime.value;
+          // Uid null check
+          uid != null ?
+          /// Null check because _stopWatchTimer stream gives 0 with actual value.
+          _currentTime != 0 ? await firestoreCallback(_currentTime)
+              : null : null;
         }
       });
-    });
-
+    }
   }
+
+  // Update time async call
+   firestoreCallback(_currentTime){
+    firestore.collection(Constants.databaseNameUserUsage).doc(uid).update(
+        {
+          "usageTime": _currentTime,
+        }).then((_) {
+      if (kDebugMode) {
+        print("Updated new time !");
+      }
+    });
+  }
+
 
 
 
@@ -79,17 +109,14 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     /// Start activity timer as user visits dashboard
         _stopWatchTimer.onExecute
         .add(StopWatchExecute.start);
-        setInitTime();
-    //_stopWatchTimer.setPresetTime(mSec: 3600*100);
     WidgetsBinding.instance!.addObserver(this);
   }
 
   @override
-  void dispose() async{
+  void dispose() {
     super.dispose();
     WidgetsBinding.instance!.removeObserver(this);
-    await _stopWatchTimer.dispose();
-
+    _stopWatchTimer.dispose();
   }
 
   @override
@@ -97,6 +124,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.resumed:
+        setState(() {
+          _isInForeground = true;
+        });
         _stopWatchTimer.onExecute
             .add(StopWatchExecute.start);
         if (kDebugMode) {
@@ -104,6 +134,10 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         }
         break;
       case AppLifecycleState.inactive:
+        setState(() {
+          _isInForeground = false;
+        });
+
         _stopWatchTimer.onExecute
             .add(StopWatchExecute.stop);
         if (kDebugMode) {
@@ -111,6 +145,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         }
         break;
       case AppLifecycleState.paused:
+        setState(() {
+          _isInForeground = false;
+        });
         _stopWatchTimer.onExecute
             .add(StopWatchExecute.stop);
         if (kDebugMode) {
@@ -118,6 +155,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         }
         break;
       case AppLifecycleState.detached:
+        setState(() {
+          _isInForeground = false;
+        });
         _stopWatchTimer.onExecute
             .add(StopWatchExecute.stop);
         if (kDebugMode) {
@@ -125,24 +165,24 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         }
         break;
     }
-
   }
 
 
 
   @override
   Widget build(BuildContext context) {
+
     /// Dimension Constraints
     var size = MediaQuery.of(context).size;
-    var safeHeight = size.height - (MediaQuery.of(context).padding.top+kToolbarHeight);
-    var width = size.width;
-
-
+    var safeHeight = size.height - (MediaQuery.of(context).padding.top + kToolbarHeight);
+    /// Set current usage to db asynchronously.
+    // Keep in mind to check state to be mounted to send async requests.
+    setUsageTime();
     return Scaffold(
       appBar: AppBar(
         title:  const Text("Dashboard"),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: const Text(
               'Logout',
               style: TextStyle(
@@ -155,80 +195,108 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _usersStream,
+        stream: _usersDataStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return const Text('Something went wrong');
+            return const Center(child: Text('Something went wrong...'));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading");
+            return const Center(child: CircularProgressIndicator());
           }
-
-          return Container(
-            height: safeHeight,
-            child: Column(
-              children: [
-                /// Timer part
-                SizedBox(
-                  height: safeHeight * 0.1,
-                    child: StreamBuilder<int>(
-                      stream: _stopWatchTimer.rawTime,
-                      initialData: _stopWatchTimer.rawTime.value,
-                      builder: (context, snap) {
-                        final value = snap.data!;
-                        final displayTime =
-                        StopWatchTimer.getDisplayTime(value,milliSecond: false);
-                        setUsageTime(value);
-                        return Row(
-                          children: <Widget>[
-                            Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                      child: Text(
-                                        displayTime.toString(),
-                                        style: const TextStyle(
-                                            fontSize: 30,
-                                            fontFamily: 'Helvetica',
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                            ElevatedButton(onPressed: ()async{
-                              _stopWatchTimer.setPresetTime(mSec: 3600);
-                            }, child: const Text("Set Time"))
-                          ],
+          return Column(
+            children: [
+              /// Timer part
+              SizedBox(
+                height: safeHeight * 0.1,
+                  child: FutureBuilder(
+                    future: setInitTime(),
+                    builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                      switch(snapshot.connectionState){
+                        case ConnectionState.waiting: return const Center(child:  CircularProgressIndicator());
+                        default:
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return mainUI(snapshot.data);
+                          }
+                      }
+                    }
+                  ),),
+              /// Users List
+              SizedBox(
+                height: safeHeight*0.9,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16),
+                      child: Text("Users",style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold
+                      ),),
+                    ),
+                    SizedBox(
+                      height: safeHeight * 0.86,
+                      child: ListView(
+                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                        Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                        return ListTile(
+                          title: Text(data['email']?? "null"),
+                          subtitle: Text(data['uid']),
                         );
-                      },
-                    ),),
-                /// Users List
-                SizedBox(
-                  height: safeHeight*0.9,
-                  child: ListView(
-                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                      Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-                      //_stopWatchTimer.rawTime.listen((value) =>);
-                      return ListTile(
-                        title: Text(data['email']?? "null"),
-                        //title: Text(stopwatch.elapsed.inSeconds.toString()),
-                        subtitle: Text(data['uid']),
-
-                      );
-                    }).toList(),
+                      }).toList(),
                   ),
-                ),
-              ],
-            ),
+                    ),
+                ]),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
+
+  /// Main UI
+  Widget mainUI(initTime){
+
+    // Setting initTime directly to initialData param generates bug.
+    // So we are setting initial data using setPresetSecondTime() method
+    // which sets the stopwatch time to the given, in our case which is
+    // what we get from FutureBuilder.
+    _stopWatchTimer.setPresetSecondTime(initTime);
+
+    return StreamBuilder<int>(
+      stream: _stopWatchTimer.rawTime,
+      initialData: _stopWatchTimer.rawTime.value,
+      builder: (context, snap) {
+        final value = snap.data!;
+        final displayTime =
+        StopWatchTimer.getDisplayTime(value,milliSecond: false);
+
+        return Padding(
+          padding:
+          const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children :[
+              const Text("Total App usage: ",
+                style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.blueGrey,
+                    fontFamily: 'Helvetica',
+                    fontWeight: FontWeight.bold),),
+              Text(
+              displayTime.toString(),
+              style: const TextStyle(
+                  fontSize: 30,
+                  fontFamily: 'Helvetica',
+                  fontWeight: FontWeight.bold,
+              color: Colors.grey),
+            ),
+          ]),
+        );
+      },
+    );
+  }
 }
