@@ -60,6 +60,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     Map<String, dynamic>? data = querySnapshot.data();
     var _usageTime = data!= null? data['usageTime'] : null;
     if(_usageTime!=null){
+      print("##### Setting time $_usageTime #####");
       return _usageTime;
     }else{
       if (kDebugMode) {
@@ -75,7 +76,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
         // Important !!!
         // Always check if state is mounted or not, otherwise async calls will
         // be continued in background.
-        if(mounted) {
+        if(mounted && _isInForeground ) {
           _currentTime = _stopWatchTimer.secondTime.value;
           // Uid null check
           uid != null ?
@@ -92,9 +93,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     firestore.collection(Constants.databaseNameUserUsage).doc(uid).update(
         {
           "usageTime": _currentTime,
-        }).then((_) {
+        }).timeout(Constants.firebaseRequestTimeout).then((_) {
       if (kDebugMode) {
-        print("Updated new time !");
+        print("Updated new time ! $_currentTime");
       }
     });
   }
@@ -211,20 +212,24 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
                 /// Timer part
                 SizedBox(
                   height: safeHeight * 0.1,
-                    child: FutureBuilder(
+                    child: /*_isInForeground ? */FutureBuilder(
                       future: setInitTime(),
                       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
                         switch(snapshot.connectionState){
                           case ConnectionState.waiting: return const Center(child:  CircularProgressIndicator());
                           default:
-                            if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            } else {
+                            if (snapshot.hasData) {
                               return mainUI(snapshot.data);
+                            } else if(snapshot.hasError){
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            }
+                            else{
+                              return Container();
                             }
                         }
                       }
-                    ),),
+                    )/*: Container()*/
+                  ,),
                 /// Users List
                 SizedBox(
                   height: safeHeight*0.9,
@@ -264,16 +269,20 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
 
   /// Main UI
   Widget mainUI(initTime){
-
+    print(initTime);
     // Setting initTime directly to initialData param generates bug.
     // So we are setting initial data using setPresetSecondTime() method
     // which sets the stopwatch time to the given, in our case which is
     // what we get from FutureBuilder.
-    _stopWatchTimer.setPresetSecondTime(initTime);
+    // print("Stop watch time before clear ${_stopWatchTimer.secondTime.value.toString()}");
+     _stopWatchTimer.clearPresetTime();
+    // print("Stop watch time after clear ${_stopWatchTimer.secondTime.value.toString()}");
+     _stopWatchTimer.setPresetSecondTime(initTime);
+    // print("Stop watch time after setting new time ${_stopWatchTimer.secondTime.value.toString()}");
 
     return StreamBuilder<int>(
       stream: _stopWatchTimer.rawTime,
-      initialData: _stopWatchTimer.rawTime.value,
+      initialData: 0,
       builder: (context, snap) {
         final value = snap.data!;
         final displayTime =

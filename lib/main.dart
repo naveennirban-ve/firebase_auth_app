@@ -1,5 +1,6 @@
 
 
+import 'package:firebase_auth_app/constants/application.dart';
 import 'package:firebase_auth_app/pages/landingPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -33,5 +34,5 @@ class MyApp extends StatelessWidget {
   }
 }
 /// Control flow is from main.dart to landingPage.dart
-/// If login then signin.dart.
+/// If login then signIn.dart.
 

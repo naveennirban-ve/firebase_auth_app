@@ -4,6 +4,7 @@ class Constants{
   static const String databaseNameUsers = "users";
   static const String databaseNameUserUsage = "usageUser";
   static const usageDataRequestDelay = 10;
+  static const Duration firebaseRequestTimeout = Duration(seconds: 5);
 }
 class AppColors{
   static const Color blue = Colors.blue;
