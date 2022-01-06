@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_app/constants/application.dart';
+import 'package:firebase_auth_app/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -53,20 +54,24 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     }
   }
 
+
+
   /// Set initial time in stopwatch
-  Future<int> setInitTime() async{
+  void setInitTime() async{
     var collection = FirebaseFirestore.instance.collection(Constants.databaseNameUserUsage).doc(uid);
     var querySnapshot = await collection.get();
     Map<String, dynamic>? data = querySnapshot.data();
     var _usageTime = data!= null? data['usageTime'] : null;
     if(_usageTime!=null){
+
+      _stopWatchTimer.setPresetSecondTime(_usageTime);
       print("##### Setting time $_usageTime #####");
       return _usageTime;
     }else{
       if (kDebugMode) {
         print("Usage Time is null, setting 0 as default");
       }
-      return 0;
+
     }}
 
   /// Save app usage time in database
@@ -110,6 +115,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     /// Start activity timer as user visits dashboard
         _stopWatchTimer.onExecute
         .add(StopWatchExecute.start);
+    setInitTime();
     WidgetsBinding.instance!.addObserver(this);
   }
 
@@ -212,23 +218,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
                 /// Timer part
                 SizedBox(
                   height: safeHeight * 0.1,
-                    child: /*_isInForeground ? */FutureBuilder(
-                      future: setInitTime(),
-                      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                        switch(snapshot.connectionState){
-                          case ConnectionState.waiting: return const Center(child:  CircularProgressIndicator());
-                          default:
-                            if (snapshot.hasData) {
-                              return mainUI(snapshot.data);
-                            } else if(snapshot.hasError){
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            }
-                            else{
-                              return Container();
-                            }
-                        }
-                      }
-                    )/*: Container()*/
+                    child: mainUI()
                   ,),
                 /// Users List
                 SizedBox(
@@ -268,16 +258,16 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
 
 
   /// Main UI
-  Widget mainUI(initTime){
-    print(initTime);
+  Widget mainUI(){
+
     // Setting initTime directly to initialData param generates bug.
     // So we are setting initial data using setPresetSecondTime() method
     // which sets the stopwatch time to the given, in our case which is
     // what we get from FutureBuilder.
     // print("Stop watch time before clear ${_stopWatchTimer.secondTime.value.toString()}");
-     _stopWatchTimer.clearPresetTime();
+     //_stopWatchTimer.clearPresetTime();
     // print("Stop watch time after clear ${_stopWatchTimer.secondTime.value.toString()}");
-     _stopWatchTimer.setPresetSecondTime(initTime);
+     //_stopWatchTimer.setPresetSecondTime(initTime);
     // print("Stop watch time after setting new time ${_stopWatchTimer.secondTime.value.toString()}");
 
     return StreamBuilder<int>(
