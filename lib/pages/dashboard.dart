@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_app/constants/application.dart';
-import 'package:firebase_auth_app/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -28,18 +27,25 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
 
 
 
-  /// Check internet connectivity
+/*  /// Check internet connectivity
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;*/
 
 
   /// To use Firebase auth
   FirebaseAuth auth = FirebaseAuth.instance;
   /// To use Firebase Firestore
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final Stream<QuerySnapshot> _usersDataStream = FirebaseFirestore.instance.collection(Constants.databaseNameUsers).snapshots();
+
   var uid = FirebaseAuth.instance.currentUser!.uid;
+
+
+  Future<QuerySnapshot> getUserData()async{
+    final CollectionReference _usersCollectionRef = FirebaseFirestore.instance.collection(Constants.databaseNameUsers);
+    final QuerySnapshot _querySnapshot = await _usersCollectionRef.get();
+    return _querySnapshot;
+  }
 
 
 
@@ -65,7 +71,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
     if(_usageTime!=null){
 
       _stopWatchTimer.setPresetSecondTime(_usageTime);
-      print("##### Setting time $_usageTime #####");
+      if (kDebugMode) {
+        print("##### Setting time $_usageTime #####");
+      }
       return _usageTime;
     }else{
       if (kDebugMode) {
@@ -76,8 +84,9 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
 
   /// Save app usage time in database
   setUsageTime()async{
+    print("##### setUsageTime() called... ###");
      while(_isInForeground) {
-      await Future.delayed(const Duration(seconds: Constants.usageDataRequestDelay), () async{
+       await Future.delayed(const Duration(seconds: Constants.usageDataRequestDelay), () async{
         // Important !!!
         // Always check if state is mounted or not, otherwise async calls will
         // be continued in background.
@@ -201,8 +210,8 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _usersDataStream,
+      body: FutureBuilder<QuerySnapshot>(
+        future: getUserData(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong...'));
@@ -210,7 +219,7 @@ class _DashboardState extends State<Dashboard> with WidgetsBindingObserver{
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          return Container(
+          return SizedBox(
             height: safeHeight,
             child: ListView(
               shrinkWrap: true,
